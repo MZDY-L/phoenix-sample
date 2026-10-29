@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>登录 - 凤凰商城</title>
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../assets/ico/favicon.png">
+</head>
+<body>
+    <div class="container">
+        <form class="form-signin" action="/api/login" method="POST">
+            <h2 class="form-signin-heading">请登录</h2>
+            <input type="text" name="username" class="input-block-level" placeholder="用户名">
+            <input type="password" name="password" class="input-block-level" placeholder="Password">
+            <h3>{{dict_new}}</h3>
+            <label class="checkbox">
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>
+            <button class="btn btn-large btn-primary" type="submit">登录</button>
+        </form>
+    </div>
+</body>
+</html>

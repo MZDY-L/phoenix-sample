@@ -8,9 +8,11 @@ import random
 import json
 import uuid
 import sys
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+if sys.version_info[0] < 3:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
 
 
 
@@ -28,7 +30,7 @@ app = Flask(__name__,static_folder='assets')
 
 def get_redis():
     if not hasattr(g, 'redis'):
-        g.redis = Redis(host="redis", db=0, socket_timeout=5)
+        g.redis = Redis(host=os.getenv('REDIS_HOST', 'redis'), db=0, socket_timeout=5)
     return g.redis
 
 @app.route("/", methods=['POST','GET'])
@@ -45,6 +47,10 @@ def hello():
         data = json.dumps({'voter_id': voter_id, 'vote': vote})
         redis.rpush('votes', data)
 
+    username = request.args.get("username")
+    if username is None:
+        username = "登录"
+
     resp = make_response(render_template(
         'index.html',
         option_a=option_a,
@@ -54,11 +60,32 @@ def hello():
         option_e=option_e,
         option_f=option_f,
         hostname=hostname,
+        username=username,
         vote=vote,
     ))
     resp.set_cookie('voter_id', voter_id)
     return resp
 
+# 登录转发
+@app.route("/login", methods=["GET"])
+def login_forward():
+    return render_template("login.html")
+
+@app.route("/api/login", methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if password == "123456" and username == "张三":
+            return redirect(url_for("hello", username=username))
+        else:
+            dict_new = "用户名或密码错误"
+            return render_template("login.html", dict_new=dict_new)
+    if request.method == "GET":
+        dict_new = {"message": "ok"}
+        return jsonify(dict_new)
+    else:
+        return jsonify(dict_new)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', '80')), debug=True, threaded=True)
